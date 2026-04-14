@@ -1,0 +1,86 @@
+@page "/registracija"
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+@using System.ComponentModel.DataAnnotations
+
+<PageTitle>Registracija | AkrilShop</PageTitle>
+
+<section class="section container auth-wrap">
+    <h1>Registracija</h1>
+
+    <EditForm Model="model" OnValidSubmit="HandleRegisterAsync" class="auth-card">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <label>Ime i prezime</label>
+        <InputText @bind-Value="model.FullName" />
+
+        <label>Email</label>
+        <InputText @bind-Value="model.Email" />
+
+        <label>Lozinka</label>
+        <InputText @bind-Value="model.Password" type="password" />
+
+        <label>Potvrdi lozinku</label>
+        <InputText @bind-Value="model.ConfirmPassword" type="password" />
+
+        <button class="btn btn-primary" type="submit">Kreiraj račun</button>
+    </EditForm>
+
+    @if (!string.IsNullOrWhiteSpace(message))
+    {
+        <p class="@(isSuccess ? "success" : "error")">@message</p>
+    }
+
+    <p>Već imaš račun? <a href="/prijava">Prijavi se</a>.</p>
+</section>
+
+@code {
+    private RegisterModel model = new();
+    private string? message;
+    private bool isSuccess;
+
+    private async Task HandleRegisterAsync()
+    {
+        if (model.Password != model.ConfirmPassword)
+        {
+            message = "Lozinke se ne podudaraju.";
+            isSuccess = false;
+            return;
+        }
+
+        var account = new UserAccount
+        {
+            FullName = model.FullName,
+            Email = model.Email,
+            Password = model.Password
+        };
+
+        var result = await AuthService.RegisterAsync(account);
+        message = result.Message;
+        isSuccess = result.Success;
+
+        if (result.Success)
+        {
+            Navigation.NavigateTo("/");
+        }
+    }
+
+    public class RegisterModel
+    {
+        [Required(ErrorMessage = "Ime i prezime su obavezni")]
+        [StringLength(80, ErrorMessage = "Maksimalno 80 znakova")]
+        public string FullName { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Email je obavezan")]
+        [EmailAddress(ErrorMessage = "Upiši valjanu email adresu")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Lozinka je obavezna")]
+        [MinLength(6, ErrorMessage = "Minimalno 6 znakova")]
+        public string Password { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Potvrda lozinke je obavezna")]
+        public string ConfirmPassword { get; set; } = string.Empty;
+    }
+}

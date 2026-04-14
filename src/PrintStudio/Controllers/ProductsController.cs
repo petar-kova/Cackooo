@@ -9,7 +9,13 @@ namespace PrintStudio.Controllers;
 public class ProductsController(IProductService productService) : ControllerBase
 {
     [HttpGet]
-    public Task<List<Product>> GetAll([FromQuery] string? category) => productService.GetAllAsync(category);
+    public Task<List<Product>> GetAll(
+        [FromQuery] string? category,
+        [FromQuery] string? productType,
+        [FromQuery] string? sortBy,
+        [FromQuery] bool onlyOnSale = false,
+        [FromQuery] bool onlyBestSeller = false) =>
+        productService.GetAllAsync(category, productType, sortBy, onlyOnSale, onlyBestSeller);
 
     [HttpGet("{id:int}")]
     public async Task<ActionResult<Product>> GetById(int id)

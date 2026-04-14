@@ -1,15 +1,27 @@
 @inherits LayoutComponentBase
+@implements IDisposable
+@inject IAuthService AuthService
 
 <div class="page">
     <header class="main-header">
         <div class="container nav-wrap">
-            <a href="/" class="logo">PrintStudio</a>
+            <a href="/" class="logo">AkrilShop</a>
             <nav>
                 <a href="/">Početna</a>
                 <a href="/proizvodi">Proizvodi</a>
                 <a href="/o-nama">O nama</a>
                 <a href="/kontakt">Kontakt</a>
-                <a class="cta" href="/kontakt">Zatraži ponudu</a>
+
+                @if (AuthService.CurrentUser is null)
+                {
+                    <a href="/prijava">Prijava</a>
+                    <a class="cta" href="/registracija">Registracija</a>
+                }
+                else
+                {
+                    <span class="welcome-user">@AuthService.CurrentUser.FullName</span>
+                    <button class="btn-link" @onclick="AuthService.Logout">Odjava</button>
+                }
             </nav>
         </div>
     </header>
@@ -21,22 +33,39 @@
     <footer class="main-footer">
         <div class="container footer-grid">
             <div>
-                <h3>PrintStudio</h3>
-                <p>Personalizirane karte i tiskovine za posebne trenutke.</p>
+                <h3>AkrilShop</h3>
+                <p>Specijalizirani web shop za akrilne boje i pribor za slikanje.</p>
             </div>
             <div>
                 <h4>Brzi linkovi</h4>
                 <a href="/">Početna</a>
-                <a href="/proizvodi">Ponuda</a>
-                <a href="/o-nama">O nama</a>
-                <a href="/kontakt">Kontakt</a>
+                <a href="/proizvodi">Proizvodi</a>
+                <a href="/prijava">Prijava</a>
+                <a href="/registracija">Registracija</a>
             </div>
             <div>
                 <h4>Kontakt</h4>
-                <p>Email: info@printstudio.hr</p>
+                <p>Email: info@akrilshop.hr</p>
                 <p>Tel: +385 1 2345 678</p>
             </div>
         </div>
-        <p class="copyright">© @DateTime.UtcNow.Year PrintStudio. Sva prava pridržana.</p>
+        <p class="copyright">© @DateTime.UtcNow.Year AkrilShop. Sva prava pridržana.</p>
     </footer>
 </div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        AuthService.AuthStateChanged += OnAuthStateChanged;
+    }
+
+    private void OnAuthStateChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        AuthService.AuthStateChanged -= OnAuthStateChanged;
+    }
+}

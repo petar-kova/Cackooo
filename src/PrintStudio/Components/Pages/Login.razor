@@ -1,0 +1,58 @@
+@page "/prijava"
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+@using System.ComponentModel.DataAnnotations
+
+<PageTitle>Prijava | AkrilShop</PageTitle>
+
+<section class="section container auth-wrap">
+    <h1>Prijava korisnika</h1>
+
+    <EditForm Model="model" OnValidSubmit="HandleLoginAsync" class="auth-card">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <label>Email</label>
+        <InputText @bind-Value="model.Email" />
+
+        <label>Lozinka</label>
+        <InputText @bind-Value="model.Password" type="password" />
+
+        <button class="btn btn-primary" type="submit">Prijavi se</button>
+    </EditForm>
+
+    @if (!string.IsNullOrWhiteSpace(message))
+    {
+        <p class="@(isSuccess ? "success" : "error")">@message</p>
+    }
+
+    <p>Nemaš račun? <a href="/registracija">Registriraj se</a>.</p>
+</section>
+
+@code {
+    private LoginModel model = new();
+    private string? message;
+    private bool isSuccess;
+
+    private async Task HandleLoginAsync()
+    {
+        var result = await AuthService.LoginAsync(model.Email, model.Password);
+        message = result.Message;
+        isSuccess = result.Success;
+
+        if (result.Success)
+        {
+            Navigation.NavigateTo("/");
+        }
+    }
+
+    public class LoginModel
+    {
+        [Required(ErrorMessage = "Email je obavezan")]
+        [EmailAddress(ErrorMessage = "Upiši valjanu email adresu")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Lozinka je obavezna")]
+        public string Password { get; set; } = string.Empty;
+    }
+}
