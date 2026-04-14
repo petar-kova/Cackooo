@@ -1,18 +1,49 @@
 @page "/proizvodi"
 @inject IProductService ProductService
 
-<PageTitle>Proizvodi | PrintStudio</PageTitle>
+<PageTitle>Proizvodi | AkrilShop</PageTitle>
 
 <section class="section container">
-    <h1>Proizvodi i usluge</h1>
-    <label>Kategorija:</label>
-    <select @onchange="OnCategoryChanged">
-        <option value="">Sve</option>
-        @foreach (var category in categories)
-        {
-            <option value="@category">@category</option>
-        }
-    </select>
+    <h1>Svi proizvodi</h1>
+
+    <div class="filters-grid">
+        <div>
+            <label>Kategorija</label>
+            <select @bind="selectedCategory" @bind:after="LoadProductsAsync">
+                <option value="">Sve kategorije</option>
+                @foreach (var category in categories)
+                {
+                    <option value="@category">@category</option>
+                }
+            </select>
+        </div>
+
+        <div>
+            <label>Vrsta proizvoda</label>
+            <select @bind="selectedType" @bind:after="LoadProductsAsync">
+                <option value="">Sve vrste</option>
+                @foreach (var type in productTypes)
+                {
+                    <option value="@type">@type</option>
+                }
+            </select>
+        </div>
+
+        <div>
+            <label>Sortiranje</label>
+            <select @bind="selectedSort" @bind:after="LoadProductsAsync">
+                <option value="name-asc">Naziv A-Z</option>
+                <option value="name-desc">Naziv Z-A</option>
+                <option value="price-asc">Cijena: niža prema višoj</option>
+                <option value="price-desc">Cijena: viša prema nižoj</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="filter-toggles">
+        <label><input type="checkbox" @bind="onlyOnSale" @bind:after="LoadProductsAsync" /> Samo akcijski proizvodi</label>
+        <label><input type="checkbox" @bind="onlyBestSeller" @bind:after="LoadProductsAsync" /> Samo najprodavaniji</label>
+    </div>
 
     <div class="products-grid">
         @foreach (var item in products)
@@ -21,26 +52,46 @@
                 <img src="@item.ImageUrl" alt="@item.Name" loading="lazy" />
                 <h3>@item.Name</h3>
                 <p>@item.Description</p>
-                <p><strong>@item.Price.ToString("0.00") €</strong></p>
+                <p><small>@item.Brand · @item.ProductType</small></p>
+                <p>
+                    <strong>@item.Price.ToString("0.00") €</strong>
+                    @if (item.IsOnSale && item.OldPrice is not null)
+                    {
+                        <span class="old-price">@item.OldPrice.Value.ToString("0.00") €</span>
+                    }
+                </p>
             </article>
         }
     </div>
 </section>
 
 @code {
+    private List<Product> allProducts = [];
     private List<Product> products = [];
     private List<string> categories = [];
+    private List<string> productTypes = [];
+
+    private string? selectedCategory;
+    private string? selectedType;
+    private string selectedSort = "name-asc";
+    private bool onlyOnSale;
+    private bool onlyBestSeller;
 
     protected override async Task OnInitializedAsync()
     {
-        var all = await ProductService.GetAllAsync();
-        products = all;
-        categories = all.Select(p => p.Category).Distinct().OrderBy(x => x).ToList();
+        allProducts = await ProductService.GetAllAsync();
+        categories = allProducts.Select(p => p.Category).Distinct().OrderBy(x => x).ToList();
+        productTypes = allProducts.Select(p => p.ProductType).Distinct().OrderBy(x => x).ToList();
+        await LoadProductsAsync();
     }
 
-    private async Task OnCategoryChanged(ChangeEventArgs e)
+    private async Task LoadProductsAsync()
     {
-        var category = e.Value?.ToString();
-        products = await ProductService.GetAllAsync(category);
+        products = await ProductService.GetAllAsync(
+            selectedCategory,
+            selectedType,
+            selectedSort,
+            onlyOnSale,
+            onlyBestSeller);
     }
 }

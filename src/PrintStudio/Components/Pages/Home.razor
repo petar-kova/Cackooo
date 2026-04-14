@@ -1,40 +1,37 @@
 @page "/"
 @inject IProductService ProductService
-@inject ITestimonialService TestimonialService
 
-<PageTitle>Početna | PrintStudio</PageTitle>
+<PageTitle>Početna | AkrilShop</PageTitle>
 
 <section class="hero">
     <div class="container hero-content">
-        <h1>Personalizirane karte i tiskovine za posebne trenutke</h1>
-        <p>Unikatni dizajn, vrhunska kvaliteta tiska i brza dostava na vašu adresu.</p>
+        <h1>Profesionalni web shop za akrilne boje i umjetnički pribor</h1>
+        <p>Premium pigmenti, brza dostava i pažljivo odabrani proizvodi za početnike, hobiste i profesionalce.</p>
         <div class="actions">
-            <a class="btn btn-primary" href="/proizvodi">Pregled ponude</a>
-            <a class="btn btn-outline" href="/kontakt">Kontakt</a>
+            <a class="btn btn-primary" href="/proizvodi">Kupi sada</a>
+            <a class="btn btn-outline" href="/registracija">Kreiraj račun</a>
         </div>
-    </div>
-</section>
-
-<section class="section container">
-    <h2>Zašto baš mi?</h2>
-    <div class="features-grid">
-        <article><h3>✔ Kvalitetni materijali</h3><p>Koristimo premium papir i profesionalni tisak.</p></article>
-        <article><h3>✔ Brza dostava</h3><p>Pouzdana dostava u cijeloj Hrvatskoj.</p></article>
-        <article><h3>✔ Personalizacija</h3><p>Dizajn prilagođen vašem događaju i stilu.</p></article>
-        <article><h3>✔ Iskustvo</h3><p>Dugogodišnja suradnja s privatnim i poslovnim klijentima.</p></article>
     </div>
 </section>
 
 <section class="section alt">
     <div class="container">
-        <h2>Izdvojeni proizvodi</h2>
+        <h2>Akcije tjedna</h2>
         <div class="products-grid">
-            @foreach (var item in featuredProducts)
+            @foreach (var item in saleProducts)
             {
                 <article class="card">
                     <img src="@item.ImageUrl" alt="@item.Name" loading="lazy" />
+                    <span class="badge sale">Akcija</span>
                     <h3>@item.Name</h3>
                     <p>@item.Description</p>
+                    <p>
+                        <strong>@item.Price.ToString("0.00") €</strong>
+                        @if (item.OldPrice is not null)
+                        {
+                            <span class="old-price">@item.OldPrice.Value.ToString("0.00") €</span>
+                        }
+                    </p>
                 </article>
             }
         </div>
@@ -42,34 +39,28 @@
 </section>
 
 <section class="section container">
-    <h2>Recenzije kupaca</h2>
-    <div class="testimonial-grid">
-        @foreach (var item in testimonials)
+    <h2>Najprodavaniji proizvodi</h2>
+    <div class="products-grid">
+        @foreach (var item in bestSellerProducts)
         {
-            <article class="testimonial">
-                <img src="@item.AvatarUrl" alt="@item.CustomerName" />
-                <h3>@item.CustomerName</h3>
-                <p>@string.Concat(Enumerable.Repeat("★", item.Rating))</p>
-                <blockquote>@item.Comment</blockquote>
+            <article class="card">
+                <img src="@item.ImageUrl" alt="@item.Name" loading="lazy" />
+                <span class="badge bestseller">Best seller</span>
+                <h3>@item.Name</h3>
+                <p>@item.Description</p>
+                <p><strong>@item.Price.ToString("0.00") €</strong></p>
             </article>
         }
     </div>
 </section>
 
-<section class="cta-band">
-    <div class="container cta-wrap">
-        <h2>Spremni za svoju personaliziranu narudžbu?</h2>
-        <a class="btn btn-primary" href="/kontakt">Kontaktirajte nas</a>
-    </div>
-</section>
-
 @code {
-    private List<Product> featuredProducts = [];
-    private List<Testimonial> testimonials = [];
+    private List<Product> saleProducts = [];
+    private List<Product> bestSellerProducts = [];
 
     protected override async Task OnInitializedAsync()
     {
-        featuredProducts = (await ProductService.GetAllAsync()).Take(3).ToList();
-        testimonials = await TestimonialService.GetAllAsync();
+        saleProducts = await ProductService.GetAllAsync(onlyOnSale: true, sortBy: "price-asc");
+        bestSellerProducts = await ProductService.GetAllAsync(onlyBestSeller: true, sortBy: "name-asc");
     }
 }
