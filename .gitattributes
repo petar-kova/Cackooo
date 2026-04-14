@@ -1,0 +1,2 @@
+# Auto-merge Program.cs changes from both branches to reduce PR merge conflicts.
+src/PrintStudio/Program.cs merge=union
