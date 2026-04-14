@@ -16,6 +16,7 @@ Semestralni projekt izrađen u .NET tehnologijama:
   - `POST /api/products`
   - `GET /api/testimonials`
   - `POST /api/contactrequests`
+  - OpenAPI specifikacija dostupna u Development okruženju na `/openapi/v1.json`
 
 ## Pokretanje
 ```bash
