@@ -1,0 +1,42 @@
+@page "/kontakt"
+@inject IContactService ContactService
+
+<PageTitle>Kontakt | PrintStudio</PageTitle>
+
+<section class="section container">
+    <h1>Kontakt</h1>
+    <p>Ispunite obrazac i javit ćemo vam se u najkraćem roku.</p>
+
+    <EditForm Model="request" OnValidSubmit="SubmitAsync">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <label>Ime i prezime</label>
+        <InputText @bind-Value="request.FullName" />
+
+        <label>Email</label>
+        <InputText @bind-Value="request.Email" />
+
+        <label>Poruka</label>
+        <InputTextArea @bind-Value="request.Message" rows="6" />
+
+        <button class="btn btn-primary" type="submit">Pošalji</button>
+    </EditForm>
+
+    @if (sent)
+    {
+        <p class="success">Hvala! Vaš upit je uspješno zaprimljen.</p>
+    }
+</section>
+
+@code {
+    private ContactRequest request = new();
+    private bool sent;
+
+    private async Task SubmitAsync()
+    {
+        await ContactService.CreateAsync(request);
+        request = new ContactRequest();
+        sent = true;
+    }
+}

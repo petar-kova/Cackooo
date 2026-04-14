@@ -1,0 +1,46 @@
+@page "/proizvodi"
+@inject IProductService ProductService
+
+<PageTitle>Proizvodi | PrintStudio</PageTitle>
+
+<section class="section container">
+    <h1>Proizvodi i usluge</h1>
+    <label>Kategorija:</label>
+    <select @onchange="OnCategoryChanged">
+        <option value="">Sve</option>
+        @foreach (var category in categories)
+        {
+            <option value="@category">@category</option>
+        }
+    </select>
+
+    <div class="products-grid">
+        @foreach (var item in products)
+        {
+            <article class="card">
+                <img src="@item.ImageUrl" alt="@item.Name" loading="lazy" />
+                <h3>@item.Name</h3>
+                <p>@item.Description</p>
+                <p><strong>@item.Price.ToString("0.00") €</strong></p>
+            </article>
+        }
+    </div>
+</section>
+
+@code {
+    private List<Product> products = [];
+    private List<string> categories = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var all = await ProductService.GetAllAsync();
+        products = all;
+        categories = all.Select(p => p.Category).Distinct().OrderBy(x => x).ToList();
+    }
+
+    private async Task OnCategoryChanged(ChangeEventArgs e)
+    {
+        var category = e.Value?.ToString();
+        products = await ProductService.GetAllAsync(category);
+    }
+}

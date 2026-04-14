@@ -1,0 +1,42 @@
+@inherits LayoutComponentBase
+
+<div class="page">
+    <header class="main-header">
+        <div class="container nav-wrap">
+            <a href="/" class="logo">PrintStudio</a>
+            <nav>
+                <a href="/">Početna</a>
+                <a href="/proizvodi">Proizvodi</a>
+                <a href="/o-nama">O nama</a>
+                <a href="/kontakt">Kontakt</a>
+                <a class="cta" href="/kontakt">Zatraži ponudu</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        @Body
+    </main>
+
+    <footer class="main-footer">
+        <div class="container footer-grid">
+            <div>
+                <h3>PrintStudio</h3>
+                <p>Personalizirane karte i tiskovine za posebne trenutke.</p>
+            </div>
+            <div>
+                <h4>Brzi linkovi</h4>
+                <a href="/">Početna</a>
+                <a href="/proizvodi">Ponuda</a>
+                <a href="/o-nama">O nama</a>
+                <a href="/kontakt">Kontakt</a>
+            </div>
+            <div>
+                <h4>Kontakt</h4>
+                <p>Email: info@printstudio.hr</p>
+                <p>Tel: +385 1 2345 678</p>
+            </div>
+        </div>
+        <p class="copyright">© @DateTime.UtcNow.Year PrintStudio. Sva prava pridržana.</p>
+    </footer>
+</div>
